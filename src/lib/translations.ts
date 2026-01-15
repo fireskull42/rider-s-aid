@@ -1,0 +1,61 @@
+export type Language = 'de' | 'en';
+
+export const translations = {
+  de: {
+    emergency: 'NOTFALL',
+    medicalInfo: 'Medizinische Informationen',
+    personalData: 'Persönliche Daten',
+    name: 'Name',
+    birthDate: 'Geburtsdatum',
+    bloodType: 'Blutgruppe',
+    rhFactor: 'Rhesusfaktor',
+    allergies: 'Allergien',
+    medications: 'Medikamente',
+    conditions: 'Erkrankungen',
+    implants: 'Implantate / Besonderheiten',
+    emergencyContacts: 'Notfallkontakte',
+    physician: 'Hausarzt',
+    organDonor: 'Organspender',
+    yes: 'Ja',
+    no: 'Nein',
+    phone: 'Telefon',
+    relationship: 'Beziehung',
+    dosage: 'Dosierung',
+    none: 'Keine',
+    notSpecified: 'Nicht angegeben',
+    callEmergency: 'Notruf 112',
+    lastUpdated: 'Zuletzt aktualisiert',
+    accessProtected: 'Bearbeitung nur mit Login',
+  },
+  en: {
+    emergency: 'EMERGENCY',
+    medicalInfo: 'Medical Information',
+    personalData: 'Personal Data',
+    name: 'Name',
+    birthDate: 'Date of Birth',
+    bloodType: 'Blood Type',
+    rhFactor: 'Rh Factor',
+    allergies: 'Allergies',
+    medications: 'Medications',
+    conditions: 'Medical Conditions',
+    implants: 'Implants / Special Notes',
+    emergencyContacts: 'Emergency Contacts',
+    physician: 'Primary Physician',
+    organDonor: 'Organ Donor',
+    yes: 'Yes',
+    no: 'No',
+    phone: 'Phone',
+    relationship: 'Relationship',
+    dosage: 'Dosage',
+    none: 'None',
+    notSpecified: 'Not specified',
+    callEmergency: 'Call 911',
+    lastUpdated: 'Last updated',
+    accessProtected: 'Edit requires login',
+  },
+} as const;
+
+export function detectLanguage(): Language {
+  const browserLang = navigator.language.toLowerCase();
+  return browserLang.startsWith('de') ? 'de' : 'en';
+}
