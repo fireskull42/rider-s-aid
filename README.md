@@ -1,3 +1,5 @@
+This is a side project born from personal experience. After getting into a nasty motorcycle crash myself, I realized how crucial fast access to medical data is. I built this app to hopefully save lives by providing emergency services with instant access to vital information via NFC.
+
 # Welcome to your Lovable project
 
 ## Project info
