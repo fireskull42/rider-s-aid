@@ -8,13 +8,15 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Heart, LogOut, Eye, Link2, Copy, Plus, Trash2, User, Droplets, AlertCircle, Pill, Activity, Users } from 'lucide-react';
+import { Heart, LogOut, Eye, Link2, Copy, Plus, Trash2, User, Droplets, AlertCircle, Pill, Activity, Users, RefreshCw, Ruler, Scale } from 'lucide-react';
 import { Language, translations, detectLanguage } from '@/lib/translations';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const BLOOD_TYPES = ['A', 'B', 'AB', '0'] as const;
 const RH_FACTORS = ['+', '-'] as const;
 const SEVERITIES = ['mild', 'moderate', 'severe'] as const;
+const GENDERS = ['male', 'female', 'diverse'] as const;
 
 export default function Dashboard() {
   const [language] = useState<Language>(() => detectLanguage());
@@ -22,7 +24,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { user, signOut, loading: authLoading } = useAuth();
 
-  const { data: profile, isLoading: profileLoading } = useProfile();
+  const { data: profile, isLoading: profileLoading, refetch: refetchProfile } = useProfile();
   const { data: allergies = [] } = useAllergies();
   const { data: medications = [] } = useMedications();
   const { data: conditions = [] } = useConditions();
@@ -47,6 +49,7 @@ export default function Dashboard() {
   const [newCondition, setNewCondition] = useState({ name: '' });
   const [newImplant, setNewImplant] = useState({ name: '', year: '' });
   const [newContact, setNewContact] = useState({ name: '', relationship: '', phone: '' });
+  const [regenerating, setRegenerating] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -54,11 +57,28 @@ export default function Dashboard() {
     }
   }, [user, authLoading, navigate]);
 
-  const emergencyLink = user ? `${window.location.origin}/e/${user.id}` : '';
+  const emergencyLink = profile?.access_token 
+    ? `${window.location.origin}/e/${profile.access_token}` 
+    : '';
 
   const copyLink = () => {
     navigator.clipboard.writeText(emergencyLink);
     toast.success(t.linkCopied);
+  };
+
+  const regenerateToken = async () => {
+    if (!user) return;
+    setRegenerating(true);
+    try {
+      const { error } = await supabase.rpc('regenerate_access_token', { profile_id: user.id });
+      if (error) throw error;
+      await refetchProfile();
+      toast.success(t.tokenRegenerated);
+    } catch (err) {
+      toast.error(t.error);
+    } finally {
+      setRegenerating(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -89,7 +109,8 @@ export default function Dashboard() {
             <Button
               variant="outline"
               className="bg-transparent border-white/30 text-white hover:bg-white/10"
-              onClick={() => window.open(`/e/${user.id}`, '_blank')}
+              onClick={() => profile?.access_token && window.open(`/e/${profile.access_token}`, '_blank')}
+              disabled={!profile?.access_token}
             >
               <Eye className="h-4 w-4 mr-2" />
               {t.preview}
@@ -118,15 +139,19 @@ export default function Dashboard() {
           <CardContent>
             <div className="flex gap-2">
               <Input value={emergencyLink} readOnly className="font-mono text-sm" />
-              <Button onClick={copyLink} variant="outline">
+              <Button onClick={copyLink} variant="outline" disabled={!emergencyLink}>
                 <Copy className="h-4 w-4 mr-2" />
                 {t.copyLink}
+              </Button>
+              <Button onClick={regenerateToken} variant="outline" disabled={regenerating}>
+                <RefreshCw className={`h-4 w-4 mr-2 ${regenerating ? 'animate-spin' : ''}`} />
+                {t.regenerateToken}
               </Button>
             </div>
             <p className="text-sm text-muted-foreground mt-2">
               {language === 'de' 
-                ? 'Diesen Link auf deinen NFC-Tag schreiben. Rettungskräfte können ihn ohne Login öffnen.'
-                : 'Write this link to your NFC tag. Emergency responders can open it without login.'}
+                ? 'Diesen Link auf deinen NFC-Tag schreiben. Rettungskräfte können ihn ohne Login öffnen. Du kannst jederzeit einen neuen Link generieren - der alte wird dann ungültig.'
+                : 'Write this link to your NFC tag. Emergency responders can open it without login. You can generate a new link anytime - the old one will become invalid.'}
             </p>
           </CardContent>
         </Card>
@@ -161,8 +186,63 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
+        {/* Physical Data */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Ruler className="h-5 w-5" />
+              {t.physicalData}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>{t.gender}</Label>
+                <Select 
+                  value={profile?.gender || ''} 
+                  onValueChange={(v) => updateProfile.mutate({ gender: v || null })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t.notSpecified} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GENDERS.map((g) => (
+                      <SelectItem key={g} value={g}>{t[g]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>{t.height} ({t.cm})</Label>
+                <Input
+                  type="number"
+                  value={profile?.height_cm || ''}
+                  onChange={(e) => updateProfile.mutate({ height_cm: e.target.value ? parseInt(e.target.value) : null })}
+                  placeholder="175"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{t.weight} ({t.kg})</Label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  value={profile?.weight_kg || ''}
+                  onChange={(e) => updateProfile.mutate({ weight_kg: e.target.value ? parseFloat(e.target.value) : null })}
+                  placeholder="75"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Blood Type & Organ Donor */}
         <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Droplets className="h-5 w-5 text-primary" />
+              {t.bloodType} & {t.organDonor}
+            </CardTitle>
+          </CardHeader>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Droplets className="h-5 w-5 text-primary" />
