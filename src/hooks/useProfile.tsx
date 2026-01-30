@@ -10,6 +10,10 @@ export interface Profile {
   rh_factor: string | null;
   is_organ_donor: boolean;
   updated_at: string;
+  access_token: string | null;
+  gender: string | null;
+  weight_kg: number | null;
+  height_cm: number | null;
 }
 
 export interface Allergy {

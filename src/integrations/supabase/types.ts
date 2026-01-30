@@ -182,34 +182,46 @@ export type Database = {
       }
       profiles: {
         Row: {
+          access_token: string | null
           birth_date: string | null
           blood_type: string | null
           created_at: string
           full_name: string
+          gender: string | null
+          height_cm: number | null
           id: string
           is_organ_donor: boolean
           rh_factor: string | null
           updated_at: string
+          weight_kg: number | null
         }
         Insert: {
+          access_token?: string | null
           birth_date?: string | null
           blood_type?: string | null
           created_at?: string
           full_name?: string
+          gender?: string | null
+          height_cm?: number | null
           id: string
           is_organ_donor?: boolean
           rh_factor?: string | null
           updated_at?: string
+          weight_kg?: number | null
         }
         Update: {
+          access_token?: string | null
           birth_date?: string | null
           blood_type?: string | null
           created_at?: string
           full_name?: string
+          gender?: string | null
+          height_cm?: number | null
           id?: string
           is_organ_donor?: boolean
           rh_factor?: string | null
           updated_at?: string
+          weight_kg?: number | null
         }
         Relationships: []
       }
@@ -218,7 +230,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      regenerate_access_token: { Args: { profile_id: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never

@@ -69,6 +69,18 @@ export const translations = {
     startEditing: 'Klicke auf "Profil bearbeiten" um deine Daten einzugeben',
     welcomeTitle: 'RidersAid - Notfall-Informationen für Motorradfahrer',
     welcomeSubtitle: 'Erstelle dein Notfall-Profil für den NFC-Tag',
+    // New physical attributes
+    gender: 'Geschlecht',
+    weight: 'Gewicht',
+    height: 'Größe',
+    male: 'Männlich',
+    female: 'Weiblich',
+    diverse: 'Divers',
+    kg: 'kg',
+    cm: 'cm',
+    physicalData: 'Körperliche Daten',
+    regenerateToken: 'Neuen Link generieren',
+    tokenRegenerated: 'Neuer Link generiert!',
   },
   en: {
     emergency: 'EMERGENCY',
@@ -138,6 +150,18 @@ export const translations = {
     startEditing: 'Click "Edit Profile" to enter your data',
     welcomeTitle: 'RidersAid - Emergency Information for Motorcyclists',
     welcomeSubtitle: 'Create your emergency profile for NFC tag',
+    // New physical attributes
+    gender: 'Gender',
+    weight: 'Weight',
+    height: 'Height',
+    male: 'Male',
+    female: 'Female',
+    diverse: 'Diverse',
+    kg: 'kg',
+    cm: 'cm',
+    physicalData: 'Physical Data',
+    regenerateToken: 'Generate new link',
+    tokenRegenerated: 'New link generated!',
   },
 } as const;
 
